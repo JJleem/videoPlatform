@@ -19,9 +19,16 @@ const Home = () => {
         <Loader>Loading...</Loader>
       ) : (
         <>
-          <Banner bgPhoto={makeImagePath(data?.results[3].backdrop_path || "")}>
-            <Title>{data?.results[3].title}</Title>
-            <Overview>{data?.results[3].overview}</Overview>
+          <Banner>
+            <Overlay />
+            <img
+              src={makeImagePath(data?.results[9].backdrop_path || "")}
+            ></img>
+            <TextInfo>
+              <Title>{data?.results[9].title}</Title>
+
+              <Overview>{data?.results[9].overview}</Overview>
+            </TextInfo>
           </Banner>
           <TopRanking />
         </>
@@ -32,11 +39,22 @@ const Home = () => {
 
 export default Home;
 
+const Overlay = styled.div`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
+`;
+
 const Wrapper = styled.div`
   background: #000;
   height: 100%;
   overflow: hidden;
   padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 `;
 
 const Loader = styled.div`
@@ -46,23 +64,78 @@ const Loader = styled.div`
   height: 20vh;
 `;
 
-const Banner = styled.div<{ bgPhoto: string | undefined }>`
+const Banner = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 100vh;
-  padding: 60px;
-  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)),
-    url(${(props) => props.bgPhoto});
-  background-size: cover;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 150px;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    padding-top: 50px;
+  }
+  @media ${({ theme }) => theme.lg} {
+  }
+  @media ${({ theme }) => theme.md} {
+  }
+  @media ${({ theme }) => theme.sm} {
+    width: 100%;
+    height: 500px;
+    margin-top: 30px;
+    img {
+      width: 100%;
+      height: 800px;
+      padding-top: 20px;
+    }
+  }
+  @media ${({ theme }) => theme.xs} {
+  }
 `;
 
+const TextInfo = styled.div`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 65%;
+`;
 const Title = styled.h2`
-  font-size: 68px;
-  margin-top: 20px;
+  font-size: 50px;
+  color: #fff;
+  z-index: 2;
+  @media ${({ theme }) => theme.lg} {
+    font-size: 36px;
+  }
+  @media ${({ theme }) => theme.md} {
+    font-size: 30px;
+  }
+  @media ${({ theme }) => theme.sm} {
+    font-size: 26px;
+  }
+  @media ${({ theme }) => theme.xs} {
+    margin-top: 10px;
+  }
 `;
 
 const Overview = styled.p`
-  font-size: 30px;
-  width: 50%;
+  font-size: 26px;
+  width: 70%;
+
+  @media ${({ theme }) => theme.lg} {
+    font-size: 22px;
+  }
+  @media ${({ theme }) => theme.md} {
+    font-size: 16px;
+    width: 70%;
+  }
+  @media ${({ theme }) => theme.sm} {
+    font-size: 16px;
+    width: 70%;
+  }
+  @media ${({ theme }) => theme.xs} {
+  }
 `;

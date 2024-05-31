@@ -48,7 +48,7 @@ export const getMovies = () => {
 
 export const getSearch = (query: string) => {
   return fetch(
-    `${BASE_PATH}/search/multi?query=${query}&include_adult=false&language=ko-kr&page=1&api_key=${API_KEY}`
+    `${BASE_PATH}/search/multi?query=${query}&include_adult=true&language=ko-kr&page=1&api_key=${API_KEY}`
   ).then((response) => response.json());
 };
 
