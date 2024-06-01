@@ -19,6 +19,25 @@ interface IMovie {
   vote_count: number;
   genre_ids: number[];
 }
+interface ITv {
+  id: number;
+  title: string;
+  overview: string;
+  backdrop_path: string;
+  poster_path: string;
+  name: string;
+  media_type: string;
+  original_title: string;
+  popularity: number;
+  vote_average: number;
+  release_date: string;
+  original_language: string;
+  origin_country: string[];
+  first_air_date: string;
+  adult: boolean;
+  vote_count: number;
+  genre_ids: number[];
+}
 
 export interface IGetmoviesResult {
   dates: {
@@ -27,6 +46,12 @@ export interface IGetmoviesResult {
   };
   page: number;
   results: IMovie[];
+  total_pages: number;
+  total_results: number;
+}
+export interface IGetTvRanking {
+  page: number;
+  results: ITv[];
   total_pages: number;
   total_results: number;
 }
@@ -55,5 +80,22 @@ export const getSearch = (query: string) => {
 export const getGenres = () => {
   return fetch(
     `${BASE_PATH}/genre/movie/list?&language=ko-kr&api_key=${API_KEY}`
+  ).then((response) => response.json());
+};
+
+export const getTvTop = () => {
+  return fetch(
+    `${BASE_PATH}/tv/top_rated?api_key=${API_KEY}&language=ko-kr&page=1`
+  ).then((response) => response.json());
+};
+
+export const getUpcomingMovie = () => {
+  return fetch(
+    `${BASE_PATH}/movie/upcoming?api_key=${API_KEY}&language=ko-kr&page=1&region=kr`
+  ).then((response) => response.json());
+};
+export const getPopularMovie = () => {
+  return fetch(
+    `${BASE_PATH}/tv/popular?api_key=${API_KEY}&language=ko-kr&page=1&region=kr`
   ).then((response) => response.json());
 };

@@ -1,10 +1,16 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 import { useQuery } from "react-query";
+import { getTvTop, IGetTvRanking } from "../../api";
+import styled from "styled-components";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
-import { getMovies, IGetmoviesResult } from "../../api";
 import { makeImagePath } from "../../utils";
-import { useMatch, PathMatch, useNavigate } from "react-router-dom";
+import {
+  useMatch,
+  PathMatch,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+import { click } from "@testing-library/user-event/dist/click";
 
 const offset = 6;
 
@@ -12,6 +18,7 @@ const infoVariants = {
   hover: {
     opacity: 1,
     transition: { delay: 0.3, type: "tween" },
+    display: "block",
   },
 };
 
@@ -37,49 +44,58 @@ export const boxVariants = {
   },
 };
 
-const TopRanking = () => {
+const TvTopRanking = () => {
+  const location = useLocation();
   const { scrollY } = useScroll();
   const [index, setIndex] = useState(0);
   const navigate = useNavigate();
-
-  const { data: movieData, isLoading } = useQuery<IGetmoviesResult>(
-    ["movies", "nowPlaying"],
-    getMovies
+  const { data: tvData, isLoading } = useQuery<IGetTvRanking>(
+    ["tvSeries", "TopRanking"],
+    getTvTop
   );
-  console.log(movieData);
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => {
     setLeaving((prev) => !prev);
   };
 
   const increaseIndex = () => {
-    if (movieData) {
+    if (tvData) {
       setIndex((prev) => {
-        const totalMovies = movieData.results.length - 2;
+        const totalMovies = tvData.results.length - 2;
         const maxIndex = Math.ceil(totalMovies / offset) - 1;
         return prev === maxIndex ? 0 : prev + 1;
       });
     }
   };
+  const currentPath = location.pathname;
 
-  const onBoxClicked = (movieId: number) => {
-    navigate(`/movies/${movieId}`);
+  const onBoxClicked = (tvId: number) => {
+    if (location.pathname.startsWith("/tv")) {
+      navigate(`/tv/top/${tvId}`);
+    } else if (location.pathname.startsWith("/")) {
+      navigate(`/movies/tv/${tvId}`);
+    }
   };
 
-  const bigMovieMatch: PathMatch<string> | null = useMatch("/movies/:movieId");
+  const bigMovieMatch: PathMatch<string> | null = useMatch("/tv/top/:tvId");
+  const smallMovieMatch: PathMatch<string> | null =
+    useMatch("/movies/tv/:tvId");
 
-  const clickedMovie =
-    bigMovieMatch?.params.movieId &&
-    movieData?.results.find(
-      (movie) => movie.id + "" === bigMovieMatch.params.movieId
-    );
+  const clickedMovie = location.pathname.startsWith("/tv")
+    ? tvData?.results.find((tv) => tv.id + "" === bigMovieMatch?.params.tvId)
+    : tvData?.results.find((tv) => tv.id + "" === smallMovieMatch?.params.tvId);
+
+  console.log(bigMovieMatch);
+  console.log(smallMovieMatch);
+  console.log(clickedMovie);
   const onOverlayClick = () => {
-    navigate("/");
+    navigate(-1);
   };
+
   return (
     <>
       <Slider>
-        <h1>오늘의 Movie TOP 랭킹 순위</h1>
+        <h1>오늘의 Tv TOP 랭킹 순위</h1>
         <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
           <Row
             key={index}
@@ -92,7 +108,7 @@ const TopRanking = () => {
               duration: 1,
             }}
           >
-            {movieData?.results
+            {tvData?.results
 
               .slice(offset * index, index * offset + offset)
               .map((movie, movieIndex) => (
@@ -112,7 +128,7 @@ const TopRanking = () => {
                     <Count>{index + movieIndex + 11}</Count>
                   ) : null}
                   <Info variants={infoVariants}>
-                    <h4>{movie.title}</h4>
+                    <h4>{movie.name}</h4>
                   </Info>
                 </Box>
               ))}
@@ -121,7 +137,7 @@ const TopRanking = () => {
         </AnimatePresence>
       </Slider>
       <AnimatePresence>
-        {bigMovieMatch ? (
+        {bigMovieMatch || smallMovieMatch ? (
           <>
             <Overlay
               onClick={onOverlayClick}
@@ -129,7 +145,11 @@ const TopRanking = () => {
               exit={{ opacity: 0 }}
             />
             <BigMovie
-              layoutId={bigMovieMatch?.params.movieId}
+              layoutId={
+                bigMovieMatch?.params.tvId
+                  ? bigMovieMatch?.params.tvId
+                  : smallMovieMatch?.params.tvId
+              }
               style={{
                 top: scrollY.get() + 200,
               }}
@@ -154,8 +174,6 @@ const TopRanking = () => {
     </>
   );
 };
-
-export default TopRanking;
 
 const Button = styled.button`
   position: absolute;
@@ -228,6 +246,8 @@ const Info = styled(motion.div)`
   background-color: ${(props) => props.theme.black.lighter};
   padding: 20px;
   opacity: 0;
+  display: none;
+
   h4 {
     text-align: center;
     font-size: 18px;
@@ -278,3 +298,5 @@ const BigOverView = styled.p`
   top: -60px;
   color: ${(props) => props.theme.white.lighter};
 `;
+
+export default TvTopRanking;

@@ -183,7 +183,7 @@ const Header = () => {
             {modalMatch && <Circle layoutId="circle" />}
           </Item>
           <Item>
-            <Link to="/tv">TV SHOWS</Link>
+            <Link to="/tv">TV</Link>
             {tvMatch && <Circle layoutId="circle" />}
           </Item>
           <Item>

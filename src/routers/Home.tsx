@@ -6,6 +6,8 @@ import { getMovies, IGetmoviesResult } from "../api";
 import { makeImagePath } from "../utils";
 
 import TopRanking from "../components/HomeComponents/TopRanking";
+import TvTopRanking from "../components/HomeComponents/TvTopRanking";
+import UpcomingMovie from "../components/HomeComponents/UpcomingMovie";
 
 const Home = () => {
   const { data, isLoading } = useQuery<IGetmoviesResult>(
@@ -22,15 +24,17 @@ const Home = () => {
           <Banner>
             <Overlay />
             <img
-              src={makeImagePath(data?.results[9].backdrop_path || "")}
+              src={makeImagePath(data?.results[0].backdrop_path || "")}
             ></img>
             <TextInfo>
-              <Title>{data?.results[9].title}</Title>
+              <Title>{data?.results[0].title}</Title>
 
-              <Overview>{data?.results[9].overview}</Overview>
+              <Overview>{data?.results[0].overview}</Overview>
             </TextInfo>
           </Banner>
           <TopRanking />
+          <TvTopRanking />
+          <UpcomingMovie />
         </>
       )}
     </Wrapper>

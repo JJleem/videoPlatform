@@ -26,7 +26,7 @@ const Search = () => {
       enabled: !!query && query.trim() !== "",
     }
   );
-  console.log(movieData);
+
   const { data: genreData, isLoading: genreLoading } =
     useQuery<IGetGenresResult>(["getGenres"], getGenres);
 

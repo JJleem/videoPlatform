@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useQuery } from "react-query";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
-import { getMovies, IGetmoviesResult } from "../../api";
+import { getUpcomingMovie, IGetmoviesResult } from "../../api";
 import { makeImagePath } from "../../utils";
 import { useMatch, PathMatch, useNavigate } from "react-router-dom";
 
@@ -12,6 +12,7 @@ const infoVariants = {
   hover: {
     opacity: 1,
     transition: { delay: 0.3, type: "tween" },
+    display: "block",
   },
 };
 
@@ -37,41 +38,44 @@ export const boxVariants = {
   },
 };
 
-const TopRanking = () => {
+const UpcomingMovie = () => {
   const { scrollY } = useScroll();
   const [index, setIndex] = useState(0);
   const navigate = useNavigate();
 
-  const { data: movieData, isLoading } = useQuery<IGetmoviesResult>(
-    ["movies", "nowPlaying"],
-    getMovies
+  const { data: upComingMovieData, isLoading } = useQuery<IGetmoviesResult>(
+    ["movies", "upComing"],
+    getUpcomingMovie
   );
-  console.log(movieData);
+
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => {
     setLeaving((prev) => !prev);
   };
 
   const increaseIndex = () => {
-    if (movieData) {
+    if (upComingMovieData) {
       setIndex((prev) => {
-        const totalMovies = movieData.results.length - 2;
+        const totalMovies = upComingMovieData.results.length - 2;
         const maxIndex = Math.ceil(totalMovies / offset) - 1;
         return prev === maxIndex ? 0 : prev + 1;
       });
     }
   };
 
-  const onBoxClicked = (movieId: number) => {
-    navigate(`/movies/${movieId}`);
+  const onBoxClicked = (upComingMovieId: number) => {
+    navigate(`/upComingMovie/${upComingMovieId}`);
   };
 
-  const bigMovieMatch: PathMatch<string> | null = useMatch("/movies/:movieId");
+  const bigMovieMatch: PathMatch<string> | null = useMatch(
+    "/upComingMovie/:upComingMovieId"
+  );
 
   const clickedMovie =
-    bigMovieMatch?.params.movieId &&
-    movieData?.results.find(
-      (movie) => movie.id + "" === bigMovieMatch.params.movieId
+    bigMovieMatch?.params.upComingMovieId &&
+    upComingMovieData?.results.find(
+      (upComingMovieId) =>
+        upComingMovieId.id + "" === bigMovieMatch.params.upComingMovieId
     );
   const onOverlayClick = () => {
     navigate("/");
@@ -79,7 +83,7 @@ const TopRanking = () => {
   return (
     <>
       <Slider>
-        <h1>오늘의 Movie TOP 랭킹 순위</h1>
+        <h1>오늘의 개봉예정 Movie TOP 랭킹 순위</h1>
         <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
           <Row
             key={index}
@@ -92,19 +96,19 @@ const TopRanking = () => {
               duration: 1,
             }}
           >
-            {movieData?.results
+            {upComingMovieData?.results
 
               .slice(offset * index, index * offset + offset)
-              .map((movie, movieIndex) => (
+              .map((upComingMovieId, movieIndex) => (
                 <Box
-                  onClick={() => onBoxClicked(movie.id)}
-                  key={movie.id}
-                  bgphoto={makeImagePath(movie.backdrop_path)}
+                  onClick={() => onBoxClicked(upComingMovieId.id)}
+                  key={upComingMovieId.id}
+                  bgphoto={makeImagePath(upComingMovieId.backdrop_path)}
                   variants={boxVariants}
                   initial="normal"
                   transition={{ type: "tween" }}
                   whileHover="hover"
-                  layoutId={movie.id + ""}
+                  layoutId={upComingMovieId.id + ""}
                 >
                   {index === 0 ? <Count>{index + movieIndex + 1}</Count> : null}
                   {index === 1 ? <Count>{index + movieIndex + 6}</Count> : null}
@@ -112,7 +116,7 @@ const TopRanking = () => {
                     <Count>{index + movieIndex + 11}</Count>
                   ) : null}
                   <Info variants={infoVariants}>
-                    <h4>{movie.title}</h4>
+                    <h4>{upComingMovieId.title}</h4>
                   </Info>
                 </Box>
               ))}
@@ -129,7 +133,7 @@ const TopRanking = () => {
               exit={{ opacity: 0 }}
             />
             <BigMovie
-              layoutId={bigMovieMatch?.params.movieId}
+              layoutId={bigMovieMatch?.params.upComingMovieId}
               style={{
                 top: scrollY.get() + 200,
               }}
@@ -143,7 +147,7 @@ const TopRanking = () => {
                       )})`,
                     }}
                   />
-                  <BigTitle>{clickedMovie.title}</BigTitle>
+                  <BigTitle>{clickedMovie.name}</BigTitle>
                   <BigOverView>{clickedMovie.overview}</BigOverView>
                 </>
               )}
@@ -155,7 +159,7 @@ const TopRanking = () => {
   );
 };
 
-export default TopRanking;
+export default UpcomingMovie;
 
 const Button = styled.button`
   position: absolute;
@@ -228,6 +232,7 @@ const Info = styled(motion.div)`
   background-color: ${(props) => props.theme.black.lighter};
   padding: 20px;
   opacity: 0;
+  display: none;
   h4 {
     text-align: center;
     font-size: 18px;
