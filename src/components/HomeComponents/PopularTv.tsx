@@ -86,7 +86,7 @@ const PopularTv = () => {
   return (
     <>
       <Slider>
-        <h1>오늘의 인기있는 Tv 랭킹 순위</h1>
+        <h2>오늘의 인기있는 Tv 랭킹 순위</h2>
         <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
           <Row
             key={index}
@@ -138,7 +138,7 @@ const PopularTv = () => {
             <BigMovie
               layoutId={bigMovieMatch?.params.tvId}
               style={{
-                top: scrollY.get() + 200,
+                top: scrollY.get() + 150,
               }}
             >
               {clickedMovie && (
@@ -201,6 +201,10 @@ const Count = styled.span`
   font-size: 50px;
   font-weight: bold;
   margin-top: 50px;
+  @media ${({ theme }) => theme.sm} {
+    font-size: 30px;
+    left: 0px;
+  }
 `;
 
 const Slider = styled.div`
@@ -252,6 +256,12 @@ const Info = styled(motion.div)`
     text-align: center;
     font-size: 18px;
   }
+  @media ${({ theme }) => theme.sm} {
+    h4 {
+      text-align: center;
+      font-size: 12px;
+    }
+  }
 `;
 
 const Overlay = styled(motion.div)`
@@ -291,13 +301,16 @@ const BigTitle = styled.h3`
   padding: 10px;
   position: relative;
   top: -60px;
+  @media ${({ theme }) => theme.sm} {
+    font-size: 16px;
+  }
 `;
 
 const BigOverView = styled.p`
-  /* padding: 20px;
-  position: relative;
-  top: -60px; */
   color: ${(props) => props.theme.white.lighter};
+  @media ${({ theme }) => theme.sm} {
+    font-size: 12px;
+  }
 `;
 const Exit = styled.button`
   padding: 10px;
@@ -315,6 +328,10 @@ const Exit = styled.button`
 const Genre = styled.div`
   margin-bottom: 20px;
   margin-top: -50px;
+  @media ${({ theme }) => theme.sm} {
+    font-size: 12px;
+    margin-top: 0;
+  }
 `;
 const VoteTitle = styled.span`
   font-size: 16px;

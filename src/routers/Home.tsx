@@ -76,7 +76,8 @@ const Banner = styled.div`
   height: 100%;
   position: relative;
   overflow: hidden;
-  margin-bottom: 150px;
+  margin-bottom: 80px;
+
   img {
     width: 100%;
     height: 100%;
@@ -84,6 +85,7 @@ const Banner = styled.div`
     padding-top: 50px;
   }
   @media ${({ theme }) => theme.lg} {
+    margin-bottom: 100px;
   }
   @media ${({ theme }) => theme.md} {
   }
@@ -126,18 +128,18 @@ const Title = styled.h2`
 `;
 
 const Overview = styled.p`
-  font-size: 26px;
+  font-size: 20px;
   width: 70%;
 
   @media ${({ theme }) => theme.lg} {
-    font-size: 22px;
+    font-size: 16px;
   }
   @media ${({ theme }) => theme.md} {
-    font-size: 16px;
+    font-size: 12px;
     width: 70%;
   }
   @media ${({ theme }) => theme.sm} {
-    font-size: 16px;
+    font-size: 12px;
     width: 70%;
   }
   @media ${({ theme }) => theme.xs} {

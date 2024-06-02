@@ -24,12 +24,12 @@ const Tv = () => {
           <Banner>
             <Overlay />
             <img
-              src={makeImagePath(data?.results[2].backdrop_path || "")}
+              src={makeImagePath(data?.results[0].backdrop_path || "")}
             ></img>
             <TextInfo>
-              <Title>{data?.results[2].name}</Title>
+              <Title>{data?.results[0].name}</Title>
 
-              <Overview>{data?.results[2].overview}</Overview>
+              <Overview>{data?.results[0].overview}</Overview>
             </TextInfo>
           </Banner>
 
@@ -77,7 +77,7 @@ const Banner = styled.div`
   height: 100%;
   position: relative;
   overflow: hidden;
-  margin-bottom: 150px;
+  margin-bottom: 80px;
   img {
     width: 100%;
     height: 100%;
@@ -85,6 +85,7 @@ const Banner = styled.div`
     padding-top: 50px;
   }
   @media ${({ theme }) => theme.lg} {
+    margin-bottom: 100px;
   }
   @media ${({ theme }) => theme.md} {
   }

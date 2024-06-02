@@ -103,7 +103,7 @@ const TvTopRanking = () => {
   return (
     <>
       <Slider>
-        <h1>오늘의 Tv TOP 랭킹 순위</h1>
+        <h2>오늘의 Tv TOP 랭킹 순위</h2>
         <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
           <Row
             key={index}
@@ -159,7 +159,7 @@ const TvTopRanking = () => {
                   : smallMovieMatch?.params.tvId
               }
               style={{
-                top: scrollY.get() + 200,
+                top: scrollY.get() + 150,
               }}
             >
               {clickedMovie && (
@@ -212,6 +212,10 @@ const Exit = styled.button`
 const Genre = styled.div`
   margin-bottom: 20px;
   margin-top: -50px;
+  @media ${({ theme }) => theme.sm} {
+    font-size: 12px;
+    margin-top: 0;
+  }
 `;
 const Button = styled.button`
   position: absolute;
@@ -239,6 +243,10 @@ const Count = styled.span`
   font-size: 50px;
   font-weight: bold;
   margin-top: 50px;
+  @media ${({ theme }) => theme.sm} {
+    font-size: 30px;
+    left: 0px;
+  }
 `;
 
 const Slider = styled.div`
@@ -290,6 +298,12 @@ const Info = styled(motion.div)`
     text-align: center;
     font-size: 18px;
   }
+  @media ${({ theme }) => theme.sm} {
+    h4 {
+      text-align: center;
+      font-size: 12px;
+    }
+  }
 `;
 
 const Overlay = styled(motion.div)`
@@ -330,15 +344,18 @@ const BigTitle = styled.div`
   position: relative;
   top: -60px;
   font-weight: bold;
+  @media ${({ theme }) => theme.sm} {
+    font-size: 16px;
+  }
 `;
 const VoteTitle = styled.span`
   font-size: 16px;
 `;
 const BigOverView = styled.p`
-  /* position: relative;
-  top: -60px; */
-
   color: ${(props) => props.theme.white.lighter};
+  @media ${({ theme }) => theme.sm} {
+    font-size: 12px;
+  }
 `;
 
 export default TvTopRanking;

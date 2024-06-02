@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useQuery } from "react-query";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
 import {
-  getUpcomingMovie,
+  getMovies,
   IGetmoviesResult,
   IGetGenresResult,
   getGenres,
@@ -17,7 +17,6 @@ const infoVariants = {
   hover: {
     opacity: 1,
     transition: { delay: 0.3, type: "tween" },
-    display: "block",
   },
 };
 
@@ -43,15 +42,15 @@ export const boxVariants = {
   },
 };
 
-const UpcomingMovie = () => {
+const GenreRanking = () => {
   const { scrollY } = useScroll();
   const [index, setIndex] = useState(0);
   const navigate = useNavigate();
   const { data: genreData, isLoading: genreLoading } =
     useQuery<IGetGenresResult>(["getGenres"], getGenres);
-  const { data: upComingMovieData, isLoading } = useQuery<IGetmoviesResult>(
-    ["movies", "upComing"],
-    getUpcomingMovie
+  const { data: movieData, isLoading } = useQuery<IGetmoviesResult>(
+    ["movies", "nowPlaying"],
+    getMovies
   );
 
   const [leaving, setLeaving] = useState(false);
@@ -60,28 +59,25 @@ const UpcomingMovie = () => {
   };
 
   const increaseIndex = () => {
-    if (upComingMovieData) {
+    if (movieData) {
       setIndex((prev) => {
-        const totalMovies = upComingMovieData.results.length - 2;
+        const totalMovies = movieData.results.length - 2;
         const maxIndex = Math.ceil(totalMovies / offset) - 1;
         return prev === maxIndex ? 0 : prev + 1;
       });
     }
   };
 
-  const onBoxClicked = (upComingMovieId: number) => {
-    navigate(`/upComingMovie/${upComingMovieId}`);
+  const onBoxClicked = (movieId: number) => {
+    navigate(`/movies/${movieId}`);
   };
 
-  const bigMovieMatch: PathMatch<string> | null = useMatch(
-    "/upComingMovie/:upComingMovieId"
-  );
+  const bigMovieMatch: PathMatch<string> | null = useMatch("/movies/:movieId");
 
   const clickedMovie =
-    bigMovieMatch?.params.upComingMovieId &&
-    upComingMovieData?.results.find(
-      (upComingMovieId) =>
-        upComingMovieId.id + "" === bigMovieMatch.params.upComingMovieId
+    bigMovieMatch?.params.movieId &&
+    movieData?.results.find(
+      (movie) => movie.id + "" === bigMovieMatch.params.movieId
     );
   const onOverlayClick = () => {
     navigate("/");
@@ -89,7 +85,7 @@ const UpcomingMovie = () => {
   return (
     <>
       <Slider>
-        <h2>오늘의 개봉예정 Movie TOP 랭킹 순위</h2>
+        <h2>오늘의 Movie TOP 랭킹 순위</h2>
         <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
           <Row
             key={index}
@@ -102,19 +98,19 @@ const UpcomingMovie = () => {
               duration: 1,
             }}
           >
-            {upComingMovieData?.results
+            {movieData?.results
 
               .slice(offset * index, index * offset + offset)
-              .map((upComingMovieId, movieIndex) => (
+              .map((movie, movieIndex) => (
                 <Box
-                  onClick={() => onBoxClicked(upComingMovieId.id)}
-                  key={upComingMovieId.id}
-                  bgphoto={makeImagePath(upComingMovieId.backdrop_path)}
+                  onClick={() => onBoxClicked(movie.id)}
+                  key={movie.id}
+                  bgphoto={makeImagePath(movie.backdrop_path)}
                   variants={boxVariants}
                   initial="normal"
                   transition={{ type: "tween" }}
                   whileHover="hover"
-                  layoutId={upComingMovieId.id + ""}
+                  layoutId={movie.id + ""}
                 >
                   {index === 0 ? <Count>{index + movieIndex + 1}</Count> : null}
                   {index === 1 ? <Count>{index + movieIndex + 6}</Count> : null}
@@ -122,7 +118,7 @@ const UpcomingMovie = () => {
                     <Count>{index + movieIndex + 11}</Count>
                   ) : null}
                   <Info variants={infoVariants}>
-                    <h4>{upComingMovieId.title}</h4>
+                    <h4>{movie.title}</h4>
                   </Info>
                 </Box>
               ))}
@@ -139,7 +135,7 @@ const UpcomingMovie = () => {
               exit={{ opacity: 0 }}
             />
             <BigMovie
-              layoutId={bigMovieMatch?.params.upComingMovieId}
+              layoutId={bigMovieMatch?.params.movieId}
               style={{
                 top: scrollY.get() + 150,
               }}
@@ -178,8 +174,24 @@ const UpcomingMovie = () => {
   );
 };
 
-export default UpcomingMovie;
+export default GenreRanking;
+const VoteTitle = styled.span`
+  font-size: 16px;
+`;
 
+const Exit = styled.button`
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  background-color: white;
+  box-shadow: 0px 0px 3px #000;
+  cursor: pointer;
+`;
 const Genre = styled.div`
   margin-bottom: 20px;
   margin-top: -50px;
@@ -189,11 +201,9 @@ const Genre = styled.div`
   }
 `;
 
-const VoteTitle = styled.span`
-  font-size: 16px;
-`;
 const Button = styled.button`
   position: absolute;
+  opacity: 0.5;
   right: -10px;
   width: 50px;
   top: 60%;
@@ -258,6 +268,9 @@ const Box = styled(motion.div)<{ bgphoto: string }>`
   &:last-child {
     transform-origin: center right;
   }
+  @media ${({ theme }) => theme.sm} {
+    width: 100%;
+  }
 `;
 
 const Info = styled(motion.div)`
@@ -267,7 +280,6 @@ const Info = styled(motion.div)`
   background-color: ${(props) => props.theme.black.lighter};
   padding: 20px;
   opacity: 0;
-  display: none;
   h4 {
     text-align: center;
     font-size: 18px;
@@ -279,19 +291,7 @@ const Info = styled(motion.div)`
     }
   }
 `;
-const Exit = styled.button`
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-weight: bold;
-  font-size: 16px;
-  background-color: white;
-  box-shadow: 0px 0px 3px #000;
-  cursor: pointer;
-`;
+
 const Overlay = styled(motion.div)`
   width: 100vw;
   height: 100vh;
@@ -321,6 +321,8 @@ const BigCover = styled.div`
   height: 500px;
   background-size: cover;
   background-position: top;
+  @media ${({ theme }) => theme.sm} {
+  }
 `;
 const BigTitle = styled.h3`
   color: ${(props) => props.theme.white.lighter};

@@ -52,7 +52,7 @@ const TopRanking = () => {
     ["movies", "nowPlaying"],
     getMovies
   );
-  console.log(movieData);
+
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => {
     setLeaving((prev) => !prev);
@@ -85,7 +85,7 @@ const TopRanking = () => {
   return (
     <>
       <Slider>
-        <h1>오늘의 Movie TOP 랭킹 순위</h1>
+        <h2>오늘의 Movie TOP 랭킹 순위</h2>
         <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
           <Row
             key={index}
@@ -137,7 +137,7 @@ const TopRanking = () => {
             <BigMovie
               layoutId={bigMovieMatch?.params.movieId}
               style={{
-                top: scrollY.get() + 200,
+                top: scrollY.get() + 150,
               }}
             >
               {clickedMovie && (
@@ -195,10 +195,15 @@ const Exit = styled.button`
 const Genre = styled.div`
   margin-bottom: 20px;
   margin-top: -50px;
+  @media ${({ theme }) => theme.sm} {
+    font-size: 12px;
+    margin-top: 0;
+  }
 `;
 
 const Button = styled.button`
   position: absolute;
+  opacity: 0.5;
   right: -10px;
   width: 50px;
   top: 60%;
@@ -223,6 +228,10 @@ const Count = styled.span`
   font-size: 50px;
   font-weight: bold;
   margin-top: 50px;
+  @media ${({ theme }) => theme.sm} {
+    font-size: 30px;
+    left: 0px;
+  }
 `;
 
 const Slider = styled.div`
@@ -259,6 +268,9 @@ const Box = styled(motion.div)<{ bgphoto: string }>`
   &:last-child {
     transform-origin: center right;
   }
+  @media ${({ theme }) => theme.sm} {
+    width: 100%;
+  }
 `;
 
 const Info = styled(motion.div)`
@@ -271,6 +283,12 @@ const Info = styled(motion.div)`
   h4 {
     text-align: center;
     font-size: 18px;
+  }
+  @media ${({ theme }) => theme.sm} {
+    h4 {
+      text-align: center;
+      font-size: 12px;
+    }
   }
 `;
 
@@ -300,9 +318,11 @@ const BigMovie = styled(motion.div)`
 
 const BigCover = styled.div`
   width: 100%;
-  height: 400px;
+  height: 500px;
   background-size: cover;
-  background-position: center center;
+  background-position: top;
+  @media ${({ theme }) => theme.sm} {
+  }
 `;
 const BigTitle = styled.h3`
   color: ${(props) => props.theme.white.lighter};
@@ -311,11 +331,14 @@ const BigTitle = styled.h3`
   padding: 10px;
   position: relative;
   top: -60px;
+  @media ${({ theme }) => theme.sm} {
+    font-size: 16px;
+  }
 `;
 
 const BigOverView = styled.p`
-  /* padding: 20px; */
-  /* position: relative;
-  top: -60px; */
   color: ${(props) => props.theme.white.lighter};
+  @media ${({ theme }) => theme.sm} {
+    font-size: 12px;
+  }
 `;
