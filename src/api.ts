@@ -20,6 +20,7 @@ interface IMovie {
   genre_ids: number[];
 }
 interface ITv {
+  genre_ids: number[];
   id: number;
   title: string;
   overview: string;
@@ -36,7 +37,6 @@ interface ITv {
   first_air_date: string;
   adult: boolean;
   vote_count: number;
-  genre_ids: number[];
 }
 
 export interface IGetmoviesResult {

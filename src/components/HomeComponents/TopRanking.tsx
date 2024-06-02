@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useQuery } from "react-query";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
-import { getMovies, IGetmoviesResult } from "../../api";
+import {
+  getMovies,
+  IGetmoviesResult,
+  IGetGenresResult,
+  getGenres,
+} from "../../api";
 import { makeImagePath } from "../../utils";
 import { useMatch, PathMatch, useNavigate } from "react-router-dom";
 
@@ -41,7 +46,8 @@ const TopRanking = () => {
   const { scrollY } = useScroll();
   const [index, setIndex] = useState(0);
   const navigate = useNavigate();
-
+  const { data: genreData, isLoading: genreLoading } =
+    useQuery<IGetGenresResult>(["getGenres"], getGenres);
   const { data: movieData, isLoading } = useQuery<IGetmoviesResult>(
     ["movies", "nowPlaying"],
     getMovies
@@ -143,7 +149,20 @@ const TopRanking = () => {
                       )})`,
                     }}
                   />
-                  <BigTitle>{clickedMovie.title}</BigTitle>
+                  <Exit onClick={onOverlayClick}>x</Exit>
+                  <BigTitle>
+                    {clickedMovie.title}{" "}
+                    <VoteTitle>⭐{clickedMovie.vote_average}</VoteTitle>
+                  </BigTitle>
+                  <Genre>
+                    {clickedMovie.genre_ids
+                      ?.map(
+                        (Id) =>
+                          genreData?.genres.find((item) => item.id === Id)?.name
+                      )
+                      .filter((name) => name)
+                      .join(" / ")}
+                  </Genre>
                   <BigOverView>{clickedMovie.overview}</BigOverView>
                 </>
               )}
@@ -156,6 +175,27 @@ const TopRanking = () => {
 };
 
 export default TopRanking;
+const VoteTitle = styled.span`
+  font-size: 16px;
+`;
+
+const Exit = styled.button`
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  background-color: white;
+  box-shadow: 0px 0px 3px #000;
+  cursor: pointer;
+`;
+const Genre = styled.div`
+  margin-bottom: 20px;
+  margin-top: -50px;
+`;
 
 const Button = styled.button`
   position: absolute;
@@ -245,8 +285,8 @@ const Overlay = styled(motion.div)`
 `;
 
 const BigMovie = styled(motion.div)`
-  width: 40vw;
-  height: 60vh;
+  width: 70vw;
+  height: 80vh;
   position: absolute;
   left: 0;
   right: 0;
@@ -255,6 +295,7 @@ const BigMovie = styled(motion.div)`
   border-radius: 15px;
   overflow: hidden;
   z-index: 3;
+  padding: 20px;
 `;
 
 const BigCover = styled.div`
@@ -273,8 +314,8 @@ const BigTitle = styled.h3`
 `;
 
 const BigOverView = styled.p`
-  padding: 20px;
-  position: relative;
-  top: -60px;
+  /* padding: 20px; */
+  /* position: relative;
+  top: -60px; */
   color: ${(props) => props.theme.white.lighter};
 `;

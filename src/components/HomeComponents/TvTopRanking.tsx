@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "react-query";
-import { getTvTop, IGetTvRanking } from "../../api";
+import {
+  getTvTop,
+  IGetTvRanking,
+  IGetGenresResult,
+  getGenres,
+} from "../../api";
 import styled from "styled-components";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { makeImagePath } from "../../utils";
@@ -53,6 +58,13 @@ const TvTopRanking = () => {
     ["tvSeries", "TopRanking"],
     getTvTop
   );
+
+  const { data: genreData, isLoading: genreLoading } =
+    useQuery<IGetGenresResult>(["getGenres"], getGenres);
+
+  if (tvData?.results?.[0]) {
+    console.log(tvData.results[0].genre_ids);
+  }
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => {
     setLeaving((prev) => !prev);
@@ -67,7 +79,6 @@ const TvTopRanking = () => {
       });
     }
   };
-  const currentPath = location.pathname;
 
   const onBoxClicked = (tvId: number) => {
     if (location.pathname.startsWith("/tv")) {
@@ -85,9 +96,6 @@ const TvTopRanking = () => {
     ? tvData?.results.find((tv) => tv.id + "" === bigMovieMatch?.params.tvId)
     : tvData?.results.find((tv) => tv.id + "" === smallMovieMatch?.params.tvId);
 
-  console.log(bigMovieMatch);
-  console.log(smallMovieMatch);
-  console.log(clickedMovie);
   const onOverlayClick = () => {
     navigate(-1);
   };
@@ -163,7 +171,20 @@ const TvTopRanking = () => {
                       )})`,
                     }}
                   />
-                  <BigTitle>{clickedMovie.title}</BigTitle>
+                  <Exit onClick={onOverlayClick}>x</Exit>
+                  <BigTitle>
+                    {clickedMovie.name}{" "}
+                    <VoteTitle>⭐{clickedMovie.vote_average}</VoteTitle>
+                  </BigTitle>
+                  <Genre>
+                    {clickedMovie.genre_ids
+                      ?.map(
+                        (Id) =>
+                          genreData?.genres.find((item) => item.id === Id)?.name
+                      )
+                      .filter((name) => name)
+                      .join(" / ")}
+                  </Genre>
                   <BigOverView>{clickedMovie.overview}</BigOverView>
                 </>
               )}
@@ -175,6 +196,23 @@ const TvTopRanking = () => {
   );
 };
 
+const Exit = styled.button`
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  background-color: white;
+  box-shadow: 0px 0px 3px #000;
+  cursor: pointer;
+`;
+const Genre = styled.div`
+  margin-bottom: 20px;
+  margin-top: -50px;
+`;
 const Button = styled.button`
   position: absolute;
   right: -10px;
@@ -265,8 +303,8 @@ const Overlay = styled(motion.div)`
 `;
 
 const BigMovie = styled(motion.div)`
-  width: 40vw;
-  height: 60vh;
+  width: 70vw;
+  height: 80vh;
   position: absolute;
   left: 0;
   right: 0;
@@ -275,6 +313,7 @@ const BigMovie = styled(motion.div)`
   border-radius: 15px;
   overflow: hidden;
   z-index: 3;
+  padding: 20px;
 `;
 
 const BigCover = styled.div`
@@ -283,19 +322,22 @@ const BigCover = styled.div`
   background-size: cover;
   background-position: center center;
 `;
-const BigTitle = styled.h3`
+const BigTitle = styled.div`
   color: ${(props) => props.theme.white.lighter};
   text-align: left;
   font-size: 28px;
   padding: 10px;
   position: relative;
   top: -60px;
+  font-weight: bold;
 `;
-
+const VoteTitle = styled.span`
+  font-size: 16px;
+`;
 const BigOverView = styled.p`
-  padding: 20px;
-  position: relative;
-  top: -60px;
+  /* position: relative;
+  top: -60px; */
+
   color: ${(props) => props.theme.white.lighter};
 `;
 

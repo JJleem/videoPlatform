@@ -48,10 +48,7 @@ const Search = () => {
           <Wrapper>
             {movieData?.results?.map((movie) => (
               <LiWrapper key={movie.id}>
-                <Content
-                // bgPhoto={makeImagePath(movie.backdrop_path)}
-                // onClick={() => onBoxClicked(movie.id)}
-                >
+                <Content>
                   <img
                     src={makeImagePath(
                       movie.backdrop_path ? movie.backdrop_path : ""

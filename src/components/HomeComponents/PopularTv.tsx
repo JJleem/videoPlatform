@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { useQuery } from "react-query";
-import { getPopularMovie, IGetTvRanking } from "../../api";
+import {
+  getPopularMovie,
+  IGetTvRanking,
+  IGetGenresResult,
+  getGenres,
+} from "../../api";
 import styled from "styled-components";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { makeImagePath } from "../../utils";
@@ -46,6 +51,8 @@ const PopularTv = () => {
     ["tvSeries", "popularTv"],
     getPopularMovie
   );
+  const { data: genreData, isLoading: genreLoading } =
+    useQuery<IGetGenresResult>(["getGenres"], getGenres);
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => {
     setLeaving((prev) => !prev);
@@ -143,7 +150,20 @@ const PopularTv = () => {
                       )})`,
                     }}
                   />
-                  <BigTitle>{clickedMovie.title}</BigTitle>
+                  <Exit onClick={onOverlayClick}>x</Exit>
+                  <BigTitle>
+                    {clickedMovie.name}{" "}
+                    <VoteTitle>⭐{clickedMovie.vote_average}</VoteTitle>
+                  </BigTitle>
+                  <Genre>
+                    {clickedMovie.genre_ids
+                      ?.map(
+                        (Id) =>
+                          genreData?.genres.find((item) => item.id === Id)?.name
+                      )
+                      .filter((name) => name)
+                      .join(" / ")}
+                  </Genre>
                   <BigOverView>{clickedMovie.overview}</BigOverView>
                 </>
               )}
@@ -245,8 +265,8 @@ const Overlay = styled(motion.div)`
 `;
 
 const BigMovie = styled(motion.div)`
-  width: 40vw;
-  height: 60vh;
+  width: 70vw;
+  height: 80vh;
   position: absolute;
   left: 0;
   right: 0;
@@ -255,6 +275,7 @@ const BigMovie = styled(motion.div)`
   border-radius: 15px;
   overflow: hidden;
   z-index: 3;
+  padding: 20px;
 `;
 
 const BigCover = styled.div`
@@ -273,10 +294,29 @@ const BigTitle = styled.h3`
 `;
 
 const BigOverView = styled.p`
-  padding: 20px;
+  /* padding: 20px;
   position: relative;
-  top: -60px;
+  top: -60px; */
   color: ${(props) => props.theme.white.lighter};
 `;
-
+const Exit = styled.button`
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  background-color: white;
+  box-shadow: 0px 0px 3px #000;
+  cursor: pointer;
+`;
+const Genre = styled.div`
+  margin-bottom: 20px;
+  margin-top: -50px;
+`;
+const VoteTitle = styled.span`
+  font-size: 16px;
+`;
 export default PopularTv;
