@@ -144,6 +144,7 @@ const Search = () => {
                       </InfoInner>
                     </Info>
                   </Innerdiv>
+                  <button>d</button>
                   <ReviewSection>
                     <h3>Review : </h3>
                     {reviews[movie.id]?.length > 0 ? (
@@ -273,7 +274,8 @@ const ReviewSection = styled.div`
   height: 100%;
   padding: 20px;
   font-size: 12px;
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.7);
+
   color: ${(props) => props.theme.black.darker};
   border-radius: 10px;
   p {

@@ -1,16 +1,24 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, { useState, useMemo, useEffect } from "react";
 import { useQuery } from "react-query";
-import { motion, AnimatePresence, useScroll } from "framer-motion";
 import {
-  getMovies,
-  IGetmoviesResult,
+  getPopularMovie,
+  IGetTvRanking,
   IGetGenresResult,
   getGenres,
+  IGetmoviesResult,
+  getMovies,
 } from "../../api";
+import styled from "styled-components";
+import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { makeImagePath } from "../../utils";
-import { useMatch, PathMatch, useNavigate } from "react-router-dom";
-import { useMediaQuery } from "react-responsive";
+import {
+  useMatch,
+  PathMatch,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+
+const offset = 6;
 
 const infoVariants = {
   hover: {
@@ -20,19 +28,13 @@ const infoVariants = {
   },
 };
 
-export const rowVariants = {
-  hidden: {
-    x: window.outerWidth + 10,
-  },
-  visible: {
-    x: 0,
-  },
-  exit: {
-    x: -window.outerWidth - 10,
-  },
+const rowVariants = {
+  hidden: { x: window.outerWidth + 10 },
+  visible: { x: 0 },
+  exit: { x: -window.outerWidth - 10 },
 };
 
-export const boxVariants = {
+const boxVariants = {
   normal: { scale: 1 },
   hover: {
     zIndex: 99,
@@ -42,19 +44,12 @@ export const boxVariants = {
   },
 };
 
-const TopRanking = () => {
-  const is1024 = useMediaQuery({ minWidth: 730, maxWidth: 1024 });
-  const is720 = useMediaQuery({ minWidth: 300, maxWidth: 729 });
-
-  let offset = 5;
-  if (is1024) {
-    offset = 4;
-  } else if (is720) {
-    offset = 3;
-  }
+const Textond = () => {
   const { scrollY } = useScroll();
   const [index, setIndex] = useState(0);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   const { data: genreData, isLoading: genreLoading } =
     useQuery<IGetGenresResult>(["getGenres"], getGenres);
   const { data: movieData, isLoading } = useQuery<IGetmoviesResult>(
@@ -63,18 +58,19 @@ const TopRanking = () => {
   );
 
   const [leaving, setLeaving] = useState(false);
-  const toggleLeaving = () => {
-    setLeaving((prev) => !prev);
-  };
+  const toggleLeaving = () => setLeaving((prev) => !prev);
+
+  const totalMovies = useMemo(
+    () => movieData?.results.length || 0,
+    [movieData]
+  );
+  const maxIndex = useMemo(
+    () => Math.ceil(totalMovies / offset) - 1,
+    [totalMovies]
+  );
 
   const increaseIndex = () => {
-    if (movieData) {
-      setIndex((prev) => {
-        const totalMovies = movieData.results.length;
-        const maxIndex = Math.ceil(totalMovies / offset) - 1;
-        return prev === maxIndex ? 0 : prev + 1;
-      });
-    }
+    setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
   };
 
   const onBoxClicked = (movieId: number) => {
@@ -83,15 +79,25 @@ const TopRanking = () => {
 
   const bigMovieMatch: PathMatch<string> | null = useMatch("/movies/:movieId");
 
-  const clickedMovie =
-    bigMovieMatch?.params.movieId &&
-    movieData?.results.find(
-      (movie) => movie.id + "" === bigMovieMatch.params.movieId
-    );
+  const clickedMovie = useMemo(
+    () =>
+      bigMovieMatch?.params.movieId &&
+      movieData?.results.find(
+        (movie) => movie.id + "" === bigMovieMatch.params.movieId
+      ),
+    [bigMovieMatch, movieData]
+  );
 
   const onOverlayClick = () => {
     navigate("/");
   };
+
+  useEffect(() => {
+    // 이벤트 리스너 등록 및 제거
+    return () => {
+      // 이벤트 리스너 제거
+    };
+  }, []);
 
   return (
     <>
@@ -104,13 +110,9 @@ const TopRanking = () => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            transition={{
-              type: "tween",
-              duration: 1,
-            }}
+            transition={{ type: "tween", duration: 1 }}
           >
             {movieData?.results
-
               .slice(offset * index, index * offset + offset)
               .map((movie, movieIndex) => (
                 <Box
@@ -123,25 +125,7 @@ const TopRanking = () => {
                   whileHover="hover"
                   layoutId={movie.id + ""}
                 >
-                  {index === 0 ? <Count>{movieIndex + 1}</Count> : null}
-                  {index === 1 ? (
-                    <Count>{movieIndex + 1 + offset}</Count>
-                  ) : null}
-                  {index === 2 ? (
-                    <Count>{movieIndex + 1 + offset * 2}</Count>
-                  ) : null}
-                  {index === 3 ? (
-                    <Count>{movieIndex + 1 + offset * 3}</Count>
-                  ) : null}
-                  {index === 4 ? (
-                    <Count>{movieIndex + 1 + offset * 4}</Count>
-                  ) : null}
-                  {index === 5 ? (
-                    <Count>{movieIndex + 1 + offset * 5}</Count>
-                  ) : null}
-                  {index === 6 ? (
-                    <Count>{movieIndex + 1 + offset * 6}</Count>
-                  ) : null}
+                  {/* {getCountLabel(index, movieIndex)} */}
                   <Info variants={infoVariants}>
                     <h4>{movie.title}</h4>
                   </Info>
@@ -161,9 +145,7 @@ const TopRanking = () => {
             />
             <BigMovie
               layoutId={bigMovieMatch?.params.movieId}
-              style={{
-                top: scrollY.get() + 150,
-              }}
+              style={{ top: scrollY.get() + 150 }}
             >
               {clickedMovie && (
                 <>
@@ -180,13 +162,7 @@ const TopRanking = () => {
                     <VoteTitle>⭐{clickedMovie.vote_average}</VoteTitle>
                   </BigTitle>
                   <Genre>
-                    {clickedMovie.genre_ids
-                      ?.map(
-                        (Id) =>
-                          genreData?.genres.find((item) => item.id === Id)?.name
-                      )
-                      .filter((name) => name)
-                      .join(" / ")}
+                    {/* {getGenreNames(clickedMovie.genre_ids, genreData)} */}
                   </Genre>
                   <BigOverView>{clickedMovie.overview}</BigOverView>
                 </>
@@ -198,50 +174,22 @@ const TopRanking = () => {
     </>
   );
 };
-
-export default TopRanking;
-const VoteTitle = styled.span`
-  font-size: 16px;
-`;
-
-const Exit = styled.button`
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-weight: bold;
-  font-size: 16px;
-  background-color: white;
-  box-shadow: 0px 0px 3px #000;
-  cursor: pointer;
-`;
-const Genre = styled.div`
-  margin-bottom: 20px;
-  margin-top: -50px;
-  @media ${({ theme }) => theme.sm} {
-    font-size: 12px;
-    margin-top: 0;
-  }
-`;
-
+export default Textond;
 const Button = styled.button`
   position: absolute;
-  opacity: 0.5;
   right: -10px;
-  width: 80px;
+  width: 50px;
   top: 60%;
   transform: translate(0, -50%);
   border: none;
   cursor: pointer;
   border-radius: 100%;
-  height: 80px;
-  background: rgba(255, 0, 0, 0.3);
+  height: 50px;
+  background: rgba(0, 0, 0, 0.3);
   font-size: 30px;
   color: #fff;
   &:hover {
-    background: rgba(255, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.8);
   }
 `;
 
@@ -271,7 +219,8 @@ const Row = styled(motion.div)`
   position: absolute;
   width: 100%;
   height: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   gap: 10px;
   margin-top: 50px;
 `;
@@ -285,16 +234,12 @@ const Box = styled(motion.div)<{ bgphoto: string }>`
   margin-bottom: 10px;
   color: #fff;
   font-size: 30px;
-  width: 100%;
   cursor: pointer;
   &:first-child {
     transform-origin: center left;
   }
   &:last-child {
     transform-origin: center right;
-  }
-  @media ${({ theme }) => theme.sm} {
-    width: 100%;
   }
 `;
 
@@ -306,6 +251,7 @@ const Info = styled(motion.div)`
   padding: 20px;
   opacity: 0;
   display: none;
+
   h4 {
     text-align: center;
     font-size: 18px;
@@ -344,11 +290,9 @@ const BigMovie = styled(motion.div)`
 
 const BigCover = styled.div`
   width: 100%;
-  height: 500px;
+  height: 400px;
   background-size: cover;
-  background-position: top;
-  @media ${({ theme }) => theme.sm} {
-  }
+  background-position: center center;
 `;
 const BigTitle = styled.h3`
   color: ${(props) => props.theme.white.lighter};
@@ -367,4 +311,28 @@ const BigOverView = styled.p`
   @media ${({ theme }) => theme.sm} {
     font-size: 12px;
   }
+`;
+const Exit = styled.button`
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  background-color: white;
+  box-shadow: 0px 0px 3px #000;
+  cursor: pointer;
+`;
+const Genre = styled.div`
+  margin-bottom: 20px;
+  margin-top: -50px;
+  @media ${({ theme }) => theme.sm} {
+    font-size: 12px;
+    margin-top: 0;
+  }
+`;
+const VoteTitle = styled.span`
+  font-size: 16px;
 `;

@@ -8,7 +8,7 @@ import { makeImagePath } from "../utils";
 import TopRanking from "../components/HomeComponents/TopRanking";
 import TvTopRanking from "../components/HomeComponents/TvTopRanking";
 import UpcomingMovie from "../components/HomeComponents/UpcomingMovie";
-
+import Testond from "../components/HomeComponents/Testond";
 const Home = () => {
   const { data, isLoading } = useQuery<IGetmoviesResult>(
     ["movies", "nowPlaying"],

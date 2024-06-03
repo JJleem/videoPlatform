@@ -10,8 +10,7 @@ import styled from "styled-components";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { makeImagePath } from "../../utils";
 import { useMatch, PathMatch, useNavigate } from "react-router-dom";
-
-const offset = 6;
+import { useMediaQuery } from "react-responsive";
 
 const infoVariants = {
   hover: {
@@ -44,6 +43,15 @@ export const boxVariants = {
 };
 
 const PopularTv = () => {
+  const is1024 = useMediaQuery({ minWidth: 730, maxWidth: 1024 });
+  const is720 = useMediaQuery({ minWidth: 300, maxWidth: 729 });
+
+  let offset = 5;
+  if (is1024) {
+    offset = 4;
+  } else if (is720) {
+    offset = 3;
+  }
   const { scrollY } = useScroll();
   const [index, setIndex] = useState(0);
   const navigate = useNavigate();
@@ -61,7 +69,7 @@ const PopularTv = () => {
   const increaseIndex = () => {
     if (popularTvData) {
       setIndex((prev) => {
-        const totalMovies = popularTvData.results.length - 2;
+        const totalMovies = popularTvData.results.length;
         const maxIndex = Math.ceil(totalMovies / offset) - 1;
         return prev === maxIndex ? 0 : prev + 1;
       });
@@ -113,10 +121,24 @@ const PopularTv = () => {
                   whileHover="hover"
                   layoutId={movie.id + ""}
                 >
-                  {index === 0 ? <Count>{index + movieIndex + 1}</Count> : null}
-                  {index === 1 ? <Count>{index + movieIndex + 6}</Count> : null}
+                  {index === 0 ? <Count>{movieIndex + 1}</Count> : null}
+                  {index === 1 ? (
+                    <Count>{movieIndex + 1 + offset}</Count>
+                  ) : null}
                   {index === 2 ? (
-                    <Count>{index + movieIndex + 11}</Count>
+                    <Count>{movieIndex + 1 + offset * 2}</Count>
+                  ) : null}
+                  {index === 3 ? (
+                    <Count>{movieIndex + 1 + offset * 3}</Count>
+                  ) : null}
+                  {index === 4 ? (
+                    <Count>{movieIndex + 1 + offset * 4}</Count>
+                  ) : null}
+                  {index === 5 ? (
+                    <Count>{movieIndex + 1 + offset * 5}</Count>
+                  ) : null}
+                  {index === 6 ? (
+                    <Count>{movieIndex + 1 + offset * 6}</Count>
                   ) : null}
                   <Info variants={infoVariants}>
                     <h4>{movie.name}</h4>
@@ -178,18 +200,18 @@ const PopularTv = () => {
 const Button = styled.button`
   position: absolute;
   right: -10px;
-  width: 50px;
+  width: 80px;
   top: 60%;
   transform: translate(0, -50%);
   border: none;
   cursor: pointer;
   border-radius: 100%;
-  height: 50px;
-  background: rgba(0, 0, 0, 0.3);
+  height: 80px;
+  background: rgba(255, 0, 0, 0.3);
   font-size: 30px;
   color: #fff;
   &:hover {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(255, 0, 0, 0.8);
   }
 `;
 
@@ -219,8 +241,7 @@ const Row = styled(motion.div)`
   position: absolute;
   width: 100%;
   height: 100%;
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  display: flex;
   gap: 10px;
   margin-top: 50px;
 `;
@@ -234,6 +255,7 @@ const Box = styled(motion.div)<{ bgphoto: string }>`
   margin-bottom: 10px;
   color: #fff;
   font-size: 30px;
+  width: 100%;
   cursor: pointer;
   &:first-child {
     transform-origin: center left;
