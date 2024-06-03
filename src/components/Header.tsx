@@ -80,7 +80,7 @@ const Search = styled.span`
 
   svg {
     height: 40px;
-    color: #fff;
+    color: #f00;
   }
 `;
 
@@ -95,12 +95,12 @@ const Input = styled(motion.input)`
   border: 1px solid ${(props) => props.theme.white.lighter};
   border-radius: 4px;
   background-color: transparent;
-  color: #fff;
+  color: #f00;
   z-index: -1;
   border: none;
   &:focus {
     outline: none;
-    border-bottom: 1px solid ${(props) => props.theme.white.lighter};
+    border-bottom: 1px solid #f00;
   }
 `;
 
