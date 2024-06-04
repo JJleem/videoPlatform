@@ -10,12 +10,11 @@ import {
 import { styled } from "styled-components";
 import { makeImagePath } from "../utils";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
+import YouTube from "react-youtube";
 const API_KEY = "0bc8bd2db453d7413d1c2844ec617b61";
 const BASE_PATH = "https://api.themoviedb.org/3";
 const Search = () => {
   const { query } = useParams();
-  const navigate = useNavigate();
-
   const {
     data: movieData,
     isLoading: movieLoading,
@@ -28,6 +27,46 @@ const Search = () => {
     }
   );
 
+  const navigate = useNavigate();
+
+  const [videos, setVideos] = useState<ContentsState<string>>({});
+
+  const fetchVideos = (movieId: number) => {
+    return fetch(
+      `${BASE_PATH}/movie/${movieId}/videos?language=en-US&page=1&api_key=${API_KEY}`
+    ).then((response) => response.json());
+  };
+
+  useEffect(() => {
+    if (movieData) {
+      movieData.results.forEach((movie) =>
+        fetchVideos(movie.id).then((videoData) => {
+          const videoIds = videoData?.results?.map((video: any) => video.key);
+          setVideos((prev) => ({
+            ...prev,
+            [movie.id]: videoIds,
+          }));
+        })
+      );
+    }
+  }, [movieData]);
+
+  useEffect(() => {
+    if (movieData) {
+      movieData.results.forEach((movie) =>
+        fetchReviews(movie.id).then((reviewData) =>
+          setReviews((prev) => ({
+            ...prev,
+            [movie.id]: reviewData?.results?.map((review: any) => ({
+              author: review.author,
+              content: review.content,
+            })),
+          }))
+        )
+      );
+    }
+  }, [movieData]);
+
   const { data: genreData, isLoading: genreLoading } =
     useQuery<IGetGenresResult>(["getGenres"], getGenres);
 
@@ -38,30 +77,23 @@ const Search = () => {
   const onBoxClicked = (movieId: number) => {
     navigate(`/movies/${movieId}`);
   };
-  type ReviewState = {
-    [key: number]: string[];
+
+  type Review = {
+    author: string;
+    content: string;
   };
-  const [reviews, setReviews] = useState<ReviewState>({});
+
+  type ContentsState<T> = {
+    [key: number]: T[];
+  };
+  const [reviews, setReviews] = useState<ContentsState<Review>>({});
+
   const fetchReviews = (movieId: number) => {
     return fetch(
       `${BASE_PATH}/movie/${movieId}/reviews?language=en-US&page=1&api_key=${API_KEY}`
     ).then((response) => response.json());
   };
-  useEffect(() => {
-    if (movieData) {
-      movieData.results.forEach((movie) =>
-        fetchReviews(movie.id).then((reviewData) =>
-          setReviews((prev) => ({
-            ...prev,
-            [movie.id]: reviewData?.results?.map(
-              (review: any) => review.content
-            ),
-          }))
-        )
-      );
-    }
-  }, [movieData]);
-  console.log(movieData, reviews);
+
   return (
     <Container>
       {movieLoading && genreLoading && !movieData ? (
@@ -146,12 +178,35 @@ const Search = () => {
                   </Innerdiv>
                   <button>d</button>
                   <ReviewSection>
+                    <div>
+                      {videos[movie.id]?.length > 0 ? (
+                        <YouTube
+                          videoId={videos[movie.id][0]}
+                          opts={{
+                            width: "100%",
+                            height: "800px",
+                            playerVars: {
+                              autoplay: 0,
+                              modestbrandig: 1,
+                              loop: 0,
+                              playlist: videos[movie.id][0],
+                            },
+                          }}
+                          onReady={(e) => {
+                            e.target.mute();
+                          }}
+                        />
+                      ) : (
+                        "No Videos"
+                      )}
+                    </div>
                     <h3>Review : </h3>
                     {reviews[movie.id]?.length > 0 ? (
-                      reviews[movie.id].map((content, reviewIndex) => (
+                      reviews[movie.id].map((review, reviewIndex) => (
                         <p key={reviewIndex}>
                           <div>
-                            <ReviewTitle>UserReview </ReviewTitle>: {content}
+                            <ReviewTitle>{review.author} </ReviewTitle>:{" "}
+                            {review.content}
                           </div>
                         </p>
                       ))
