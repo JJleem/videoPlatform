@@ -136,7 +136,8 @@ const Header = () => {
   const navigate = useNavigate();
   const homeMatch = useMatch("/");
   const modalMatch = useMatch("/movies/*");
-  const tvMatch = useMatch("/tv");
+  const upcomingMatch = useMatch("/upComingMovie/*");
+  const tvMatch = useMatch("/tv/*");
   const searchMatch = useMatch("/search/*");
   const inputAnimation = useAnimation();
   const navAnimation = useAnimation();
@@ -181,6 +182,7 @@ const Header = () => {
             <Link to="/">HOME</Link>
             {homeMatch && <Circle layoutId="circle" />}
             {modalMatch && <Circle layoutId="circle" />}
+            {upcomingMatch && <Circle layoutId="circle" />}
           </Item>
           <Item>
             <Link to="/tv">TV</Link>

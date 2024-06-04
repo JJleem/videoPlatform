@@ -2,19 +2,18 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useQuery } from "react-query";
 
-import { getTvTop, IGetTvRanking } from "../api";
+import { getTvTop, IGetTvRanking, getPopularMovie } from "../api";
 import { makeImagePath } from "../utils";
 
-import TopRanking from "../components/HomeComponents/TopRanking";
-import TvTopRanking from "../components/HomeComponents/TvTopRanking";
-import PopularTv from "../components/HomeComponents/PopularTv";
+import MovieBox from "../components/HomeComponents/MovieBox";
 
 const Tv = () => {
   const { data, isLoading } = useQuery<IGetTvRanking>(
     ["tvSeries", "TopRanking"],
     getTvTop
   );
-
+  const { data: popularTvData, isLoading: pupularTvIsLoading } =
+    useQuery<IGetTvRanking>(["tvSeries", "popularTv"], getPopularMovie);
   return (
     <Wrapper>
       {isLoading ? (
@@ -32,10 +31,20 @@ const Tv = () => {
               <Overview>{data?.results[0].overview}</Overview>
             </TextInfo>
           </Banner>
-
-          <TvTopRanking />
-
-          <PopularTv />
+          <MovieBox
+            data={data}
+            isLoading={isLoading}
+            title={"오늘의 Tv Top 랭킹 순위"}
+            num={5}
+            lay={"toptv"}
+          />
+          <MovieBox
+            data={popularTvData}
+            isLoading={pupularTvIsLoading}
+            title={"오늘의 인기있는 Tv Top 랭킹 순위"}
+            num={6}
+            lay={"populartv"}
+          />
         </>
       )}
     </Wrapper>

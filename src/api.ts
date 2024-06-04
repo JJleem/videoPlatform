@@ -39,6 +39,15 @@ interface ITv {
   vote_count: number;
 }
 
+export type Review = {
+  author: string;
+  content: string;
+};
+
+export type ContentsState<T> = {
+  [key: number]: T[];
+};
+
 export interface IGetmoviesResult {
   dates: {
     maximum: string;
@@ -97,5 +106,11 @@ export const getUpcomingMovie = () => {
 export const getPopularMovie = () => {
   return fetch(
     `${BASE_PATH}/tv/popular?api_key=${API_KEY}&language=ko-kr&page=1&region=kr`
+  ).then((response) => response.json());
+};
+
+export const fetchVideos = (movieId: number) => {
+  return fetch(
+    `${BASE_PATH}/movie/${movieId}/videos?language=en-US&page=1&api_key=${API_KEY}`
   ).then((response) => response.json());
 };

@@ -2,39 +2,79 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useQuery } from "react-query";
 
-import { getMovies, IGetmoviesResult } from "../api";
+import {
+  getMovies,
+  IGetmoviesResult,
+  getPopularMovie,
+  IGetTvRanking,
+  getTvTop,
+  getUpcomingMovie,
+} from "../api";
 import { makeImagePath } from "../utils";
 
-import TopRanking from "../components/HomeComponents/TopRanking";
-import TvTopRanking from "../components/HomeComponents/TvTopRanking";
-import UpcomingMovie from "../components/HomeComponents/UpcomingMovie";
-import Testond from "../components/HomeComponents/Testond";
+import MovieBox from "../components/HomeComponents/MovieBox";
+
 const Home = () => {
-  const { data, isLoading } = useQuery<IGetmoviesResult>(
-    ["movies", "nowPlaying"],
-    getMovies
+  ///
+  const { data: movieData, isLoading: movieIsLoading } =
+    useQuery<IGetmoviesResult>(["movies", "nowPlaying"], getMovies);
+  ///
+  const { data: popularTvData, isLoading: pupularTvIsLoading } =
+    useQuery<IGetTvRanking>(["tvSeries", "popularTv"], getPopularMovie);
+  ///
+  const { data: tvData, isLoading: tvIsLoading } = useQuery<IGetTvRanking>(
+    ["tvSeries", "TopRanking"],
+    getTvTop
   );
+  ///
+  const { data: upComingMovieData, isLoading: upComingMovieIsLoading } =
+    useQuery<IGetmoviesResult>(["movies", "upComing"], getUpcomingMovie);
 
   return (
     <Wrapper>
-      {isLoading ? (
+      {movieIsLoading ? (
         <Loader>Loading...</Loader>
       ) : (
         <>
           <Banner>
             <Overlay />
             <img
-              src={makeImagePath(data?.results[0].backdrop_path || "")}
+              src={makeImagePath(movieData?.results[0].backdrop_path || "")}
             ></img>
             <TextInfo>
-              <Title>{data?.results[0].title}</Title>
+              <Title>{movieData?.results[0].title}</Title>
 
-              <Overview>{data?.results[0].overview}</Overview>
+              <Overview>{movieData?.results[0].overview}</Overview>
             </TextInfo>
           </Banner>
-          <TopRanking />
-          <TvTopRanking />
-          <UpcomingMovie />
+          <MovieBox
+            data={movieData}
+            isLoading={movieIsLoading}
+            title={"오늘의 Movie TOP 랭킹 순위"}
+            num={1}
+            lay={"topmovie"}
+          />
+          <MovieBox
+            data={upComingMovieData}
+            isLoading={upComingMovieIsLoading}
+            title={"오늘의 개봉예정 Movie TOP 랭킹 순위"}
+            num={2}
+            lay={"upcoming"}
+          />
+          <MovieBox
+            data={tvData}
+            isLoading={tvIsLoading}
+            title={"오늘의 Tv TOP 랭킹 순위"}
+            num={3}
+            lay={"tvtop"}
+          />
+          <MovieBox
+            data={popularTvData}
+            isLoading={pupularTvIsLoading}
+            title={"오늘의 인기있는 Tv TOP 랭킹 순위"}
+            num={4}
+            lay={"popularTv"}
+          />
         </>
       )}
     </Wrapper>

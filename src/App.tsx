@@ -11,10 +11,10 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/movies/:movieId" element={<Home />} />
-        <Route path="/movies/tv/:tvId" element={<Home />} />
-        <Route path="/upComingMovie/:upComingMovieId" element={<Home />} />
-        <Route path="/tv/:tvId" element={<Home />} />
+        <Route path="/movies/:id" element={<Home />} />
+        <Route path="/movies/tv/:id" element={<Home />} />
+        <Route path="/upComingMovie/:id" element={<Home />} />
+        <Route path="/movies/tv/popular/:id" element={<Home />} />
         <Route path="/tv" element={<Tv />} />
         <Route path="/tv/popular/:tvId" element={<Tv />} />
         <Route path="/tv/top/:tvId" element={<Tv />} />
