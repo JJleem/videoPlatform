@@ -4,7 +4,7 @@ import Header from "./components/Header";
 import Home from "./routers/Home";
 import Tv from "./routers/Tv";
 import Search from "./routers/Search";
-
+import SearchHome from "./routers/SearchHome";
 function App() {
   return (
     <BrowserRouter>
@@ -19,6 +19,7 @@ function App() {
         <Route path="/tv/popular/:tvId" element={<Tv />} />
         <Route path="/tv/top/:tvId" element={<Tv />} />
         <Route path="/search/:query/*" element={<Search />} />
+        <Route path="/search" element={<SearchHome />} />
       </Routes>
     </BrowserRouter>
   );

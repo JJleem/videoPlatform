@@ -83,10 +83,10 @@ const Banner = styled.div`
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   position: relative;
   overflow: hidden;
-  margin-bottom: 80px;
+  margin-bottom: -80px;
   img {
     width: 100%;
     height: 100%;
@@ -94,14 +94,14 @@ const Banner = styled.div`
     padding-top: 50px;
   }
   @media ${({ theme }) => theme.lg} {
-    margin-bottom: 100px;
   }
   @media ${({ theme }) => theme.md} {
   }
   @media ${({ theme }) => theme.sm} {
     width: 100%;
     height: 500px;
-    margin-top: 30px;
+    margin-top: 0px;
+    margin-bottom: 100px;
     img {
       width: 100%;
       height: 800px;
@@ -137,18 +137,18 @@ const Title = styled.h2`
 `;
 
 const Overview = styled.p`
-  font-size: 26px;
+  font-size: 20px;
   width: 70%;
 
   @media ${({ theme }) => theme.lg} {
-    font-size: 22px;
+    font-size: 16px;
   }
   @media ${({ theme }) => theme.md} {
-    font-size: 16px;
+    font-size: 12px;
     width: 70%;
   }
   @media ${({ theme }) => theme.sm} {
-    font-size: 16px;
+    font-size: 12px;
     width: 70%;
   }
   @media ${({ theme }) => theme.xs} {

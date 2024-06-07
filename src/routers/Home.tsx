@@ -92,6 +92,7 @@ const Overlay = styled.div`
 
 const Wrapper = styled.div`
   background: #000;
+  width: 100%;
   height: 100%;
   overflow: hidden;
   padding: 20px;
@@ -113,11 +114,10 @@ const Banner = styled.div`
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   position: relative;
   overflow: hidden;
-  margin-bottom: 80px;
-
+  margin-bottom: -80px;
   img {
     width: 100%;
     height: 100%;
@@ -125,14 +125,14 @@ const Banner = styled.div`
     padding-top: 50px;
   }
   @media ${({ theme }) => theme.lg} {
-    margin-bottom: 100px;
   }
   @media ${({ theme }) => theme.md} {
   }
   @media ${({ theme }) => theme.sm} {
     width: 100%;
     height: 500px;
-    margin-top: 30px;
+    margin-top: 0px;
+    margin-bottom: 100px;
     img {
       width: 100%;
       height: 800px;

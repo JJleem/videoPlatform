@@ -20,6 +20,8 @@ const Nav = styled(motion.nav)`
   font-size: 18px;
   padding: 0 20px;
   z-index: 2;
+  font-size: 14px;
+  font-weight: bold;
 `;
 
 const Col = styled.div`
@@ -29,14 +31,25 @@ const Col = styled.div`
 
 const Logo = styled(motion.svg)`
   margin-right: 50px;
-  width: 95px;
+  width: 100px;
   height: 25px;
   fill: ${(props) => props.theme.red};
   cursor: pointer;
-
   path {
     stroke: ${(props) => props.theme.red};
     stroke-width: 10px;
+  }
+  @media ${({ theme }) => theme.lg} {
+  }
+  @media ${({ theme }) => theme.md} {
+    /* margin-right: 15px;
+    width: 70px; */
+  }
+  @media ${({ theme }) => theme.sm} {
+    /* margin-right: 15px;
+    width: 65px; */
+  }
+  @media ${({ theme }) => theme.xs} {
   }
 `;
 
@@ -46,16 +59,26 @@ const Items = styled.ul`
 `;
 
 const Item = styled.li`
-  margin-right: 20px;
-  color: ${(props) => props.theme.red};
+  margin-top: -10px;
+  margin-right: 50px;
+  color: red;
   cursor: pointer;
   transition: color 0.3s ease-in-out;
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  font-size: 22px;
   &:hover {
-    color: ${(props) => props.theme.red};
+    color: ${(props) => props.theme.white.darker};
+  }
+  @media ${({ theme }) => theme.md} {
+    font-size: 18px;
+    margin-right: 40px;
+  }
+  @media ${({ theme }) => theme.sm} {
+    font-size: 16px;
+    margin-right: 30px;
   }
 `;
 
@@ -63,7 +86,7 @@ const Circle = styled(motion.span)`
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -10px;
+  bottom: -15px;
   margin: 0 auto;
   width: 8px;
   height: 8px;
@@ -89,13 +112,15 @@ const Input = styled(motion.input)`
   /* left: -190px; */
   transform-origin: right center;
   right: 0;
-  padding: 0px 10px;
-  padding-left: 0px;
+  top: 60px;
+
+  padding: 10px 15px;
+  padding-right: 40px;
   font-size: 16px;
   border: 1px solid ${(props) => props.theme.white.lighter};
   border-radius: 4px;
-  background-color: transparent;
-  color: #f00;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
   z-index: -1;
   border: none;
   &:focus {
@@ -189,7 +214,7 @@ const Header = () => {
             {tvMatch && <Circle layoutId="circle" />}
           </Item>
           <Item>
-            <div>Search</div>
+            <Link to="/search">Search</Link>
             {searchMatch && <Circle layoutId="circle" />}
           </Item>
         </Items>
@@ -198,7 +223,7 @@ const Header = () => {
         <Search>
           <motion.svg
             onClick={toggleSearch}
-            animate={{ x: searchOpen ? -195 : 0 }}
+            animate={{ x: searchOpen ? -0 : 0, y: searchOpen ? 60 : 0 }}
             transition={{ type: "linear" }}
             fill="currentColor"
             xmlns="http://www.w3.org/2000/svg"
