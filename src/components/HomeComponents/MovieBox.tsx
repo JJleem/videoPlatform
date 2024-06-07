@@ -239,7 +239,7 @@ const MovieBox: React.FC<TopRankingProps> = ({
                 top: scrollY.get() + 50,
               }}
             >
-              <div>
+              {/* <div>
                 {videos[movie.id]?.length > 0 ? (
                   <YouTube
                     videoId={videos[movie.id][0]}
@@ -260,7 +260,7 @@ const MovieBox: React.FC<TopRankingProps> = ({
                 ) : (
                   "No Videos"
                 )}
-              </div>
+              </div> */}
               {clickedMovie && (
                 <>
                   <BigCover

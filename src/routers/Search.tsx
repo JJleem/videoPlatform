@@ -1,18 +1,33 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  Route,
+  Routes,
+  useNavigate,
+  useParams,
+  useSearchParams,
+  Link,
+  useMatch,
+  useLocation,
+} from "react-router-dom";
 import { useQuery } from "react-query";
 import {
   IGetmoviesResult,
   getSearch,
   getGenres,
   IGetGenresResult,
+  IMovie,
 } from "../api";
 import { styled } from "styled-components";
 import { makeImagePath } from "../utils";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
 import YouTube from "react-youtube";
+import Related from "../components/Related";
+import Review from "../components/Review";
+import Pagination from "react-js-pagination";
+
 const API_KEY = "0bc8bd2db453d7413d1c2844ec617b61";
 const BASE_PATH = "https://api.themoviedb.org/3";
+
 const Search = () => {
   const { query } = useParams();
   const {
@@ -30,6 +45,8 @@ const Search = () => {
   const navigate = useNavigate();
 
   const [videos, setVideos] = useState<ContentsState<string>>({});
+  const [recommends, setRecommends] = useState<ContentsState<Content>>({});
+  const [reviews, setReviews] = useState<ContentsState<Content>>({});
 
   const fetchVideos = (movieId: number) => {
     return fetch(
@@ -37,23 +54,28 @@ const Search = () => {
     ).then((response) => response.json());
   };
 
+  const fetchReviews = (movieId: number) => {
+    return fetch(
+      `${BASE_PATH}/movie/${movieId}/reviews?language=en-US&page=1&api_key=${API_KEY}`
+    ).then((response) => response.json());
+  };
+
+  const fetchRecommends = (movieId: number) => {
+    return fetch(
+      `${BASE_PATH}/movie/${movieId}/recommendations?language=en-US&page=1&api_key=${API_KEY}`
+    ).then((response) => response.json());
+  };
+
   useEffect(() => {
     if (movieData) {
-      movieData.results.forEach((movie) =>
+      movieData.results.forEach((movie) => {
         fetchVideos(movie.id).then((videoData) => {
           const videoIds = videoData?.results?.map((video: any) => video.key);
           setVideos((prev) => ({
             ...prev,
             [movie.id]: videoIds,
           }));
-        })
-      );
-    }
-  }, [movieData]);
-
-  useEffect(() => {
-    if (movieData) {
-      movieData.results.forEach((movie) =>
+        });
         fetchReviews(movie.id).then((reviewData) =>
           setReviews((prev) => ({
             ...prev,
@@ -62,10 +84,30 @@ const Search = () => {
               content: review.content,
             })),
           }))
-        )
-      );
+        );
+        fetchRecommends(movie.id).then((recommendData) => {
+          setRecommends((prev) => ({
+            ...prev,
+            [movie.id]: recommendData?.results?.map((recommend: any) => ({
+              title: recommend.title,
+              backdrop_path: recommend.backdrop_path,
+            })),
+          }));
+        });
+      });
     }
   }, [movieData]);
+  const location = useLocation();
+  const reviewMatch = useMatch("search/review");
+  const relatedMatch = useMatch("search/related");
+  const [showReviewContent, setShowReviewContent] = useState(false);
+  const [showRelatedContent, setShowRelatedContent] = useState(false);
+  const toggleReviewContent = () => {
+    setShowReviewContent(!showReviewContent);
+  };
+  const toggleRelatedContent = () => {
+    setShowRelatedContent(!showRelatedContent);
+  };
 
   const { data: genreData, isLoading: genreLoading } =
     useQuery<IGetGenresResult>(["getGenres"], getGenres);
@@ -78,21 +120,33 @@ const Search = () => {
     navigate(`/movies/${movieId}`);
   };
 
-  type Review = {
+  type Content = {
     author: string;
     content: string;
+    title: string;
+    backdrop_path: string;
   };
 
   type ContentsState<T> = {
     [key: number]: T[];
   };
-  const [reviews, setReviews] = useState<ContentsState<Review>>({});
 
-  const fetchReviews = (movieId: number) => {
-    return fetch(
-      `${BASE_PATH}/movie/${movieId}/reviews?language=en-US&page=1&api_key=${API_KEY}`
-    ).then((response) => response.json());
+  //pagenation 기능
+  const [currentPage, setCurrentPage] = useState(1);
+  const [moviesPerPage, setMoviesPerPage] = useState(4);
+  // page변경함수
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
   };
+
+  const indexOfLastMovie = currentPage * moviesPerPage;
+  const indexOfFirstMovie = indexOfLastMovie - moviesPerPage;
+  const currentMovies: IMovie[] =
+    movieData?.results.slice(indexOfFirstMovie, indexOfLastMovie) || [];
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage]);
 
   return (
     <Container>
@@ -102,9 +156,9 @@ const Search = () => {
         <>
           <Title> 검색하신 '{query}'의 내용들입니다.</Title>
           <Wrapper>
-            {movieData?.results?.map((movie) => (
-              <InnerWrapper>
-                <LiWrapper key={movie.id}>
+            {currentMovies?.map((movie) => (
+              <InnerWrapper key={movie.id}>
+                <LiWrapper>
                   <Innerdiv>
                     <Content>
                       <img
@@ -153,9 +207,7 @@ const Search = () => {
                           {movie.overview ? movie.overview : "상세 정보 없음"}
                         </h4>
                       </InfoInner>
-                      <InfoInner
-                      // style={{ position: "absolute", bottom: "20px" }}
-                      >
+                      <InfoInner>
                         <h4>
                           {movie.release_date
                             ? movie.release_date
@@ -176,7 +228,38 @@ const Search = () => {
                       </InfoInner>
                     </Info>
                   </Innerdiv>
-                  <button>d</button>
+                  <Tabs>
+                    <Tab
+                      onClick={toggleReviewContent}
+                      isActive={reviewMatch !== null}
+                    >
+                      <Link to={`review${location.search}`}>Review</Link>
+                    </Tab>
+                    <Tab
+                      onClick={toggleRelatedContent}
+                      isActive={relatedMatch !== null}
+                    >
+                      <Link to={`related${location.search}`}>Related</Link>
+                    </Tab>
+                  </Tabs>
+                  <Routes>
+                    {showReviewContent && (
+                      <Route
+                        path="review"
+                        element={
+                          <Review reviews={reviews} movieId={movie.id} />
+                        }
+                      />
+                    )}
+                    {showRelatedContent && (
+                      <Route
+                        path="related"
+                        element={
+                          <Related recommends={recommends} movieId={movie.id} />
+                        }
+                      />
+                    )}
+                  </Routes>
                   <ReviewSection>
                     <div>
                       {videos[movie.id]?.length > 0 ? (
@@ -217,6 +300,15 @@ const Search = () => {
                 </LiWrapper>
               </InnerWrapper>
             ))}
+            <StyledPagination>
+              <Pagination
+                onChange={handlePageChange}
+                activePage={currentPage}
+                itemsCountPerPage={moviesPerPage}
+                totalItemsCount={movieData?.results.length || 0}
+                pageRangeDisplayed={5}
+              />
+            </StyledPagination>
           </Wrapper>
         </>
       )}
@@ -271,13 +363,6 @@ const Content = styled(motion.div)`
   }
 `;
 const Info = styled.div`
-  /* background: linear-gradient(
-    to left,
-    white,
-    transparent,
-    transparent,
-    transparent
-  ); */
   width: 100%;
   height: 100%;
   padding: 50px;
@@ -346,4 +431,57 @@ const ReviewTitle = styled.span`
   font-size: 18px;
   font-weight: bold;
   color: ${(props) => props.theme.red};
+`;
+
+const Tabs = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  margin: 25px 0;
+  padding-left: 100px;
+  gap: 10px;
+`;
+const Tab = styled.span<{ isActive: boolean }>`
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 16px;
+  background-color: rgba(255, 255, 255, 1);
+  padding: 7px 30px;
+  border-radius: 10px;
+  color: ${(props) =>
+    props.isActive ? props.theme.red : props.theme.black.darker};
+  transition: all 0.3s;
+  &:hover {
+    background-color: ${(props) => props.theme.red};
+    color: #fff;
+  }
+`;
+
+const StyledPagination = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  ul {
+    display: inline;
+    margin: 0 5px;
+  }
+  li {
+    display: inline;
+    margin: 0 5px;
+    a {
+      text-decoration: none;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 50%;
+      transition: background-color 0.3s, color 0.3s;
+      &:hover {
+        background-color: ${(props) => props.theme.red};
+        color: #fff;
+      }
+    }
+    &.active a {
+      color: #fff;
+      background-color: ${(props) => props.theme.red};
+    }
+  }
 `;
