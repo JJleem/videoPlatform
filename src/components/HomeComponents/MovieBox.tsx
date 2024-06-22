@@ -136,36 +136,9 @@ const MovieBox: React.FC<TopRankingProps> = ({
     tvpopularMatch,
   ]);
 
-  console.log(clickedMovie);
-  console.log(data);
-  console.log(tvTopMatch);
-
-  console.log(videos);
   const onOverlayClick = () => {
     navigate(-1);
   };
-
-  // const { data: videoData, isLoading: videoIsLoading } = useQuery(
-  //   ["movies", "value"],
-  //   () => fetchVideos(clickedMovie.id)
-  // );
-
-  // useEffect(() => {
-  //   if (clickedMovie) {
-  //     clickedMovie?.results?.forEach((movie) =>
-  //       fetchVideos(movie.id).then((videoData) => {
-  //         const videoIds = videoData?.results?.map((video: any) => video.key);
-  //         setVideos((prev) => ({
-  //           ...prev,
-  //           [movie.id]: videoIds,
-  //         }));
-  //       })
-  //     );
-  //   }
-  // }, [clickedMovie]);
-  // console.log(videoData);
-
-  // console.log(clickedMovie);
 
   return (
     <>
@@ -239,28 +212,6 @@ const MovieBox: React.FC<TopRankingProps> = ({
                 top: scrollY.get() + 50,
               }}
             >
-              {/* <div>
-                {videos[movie.id]?.length > 0 ? (
-                  <YouTube
-                    videoId={videos[movie.id][0]}
-                    opts={{
-                      width: "100%",
-                      height: "800px",
-                      playerVars: {
-                        autoplay: 0,
-                        modestbrandig: 1,
-                        loop: 0,
-                        playlist: videos[movie.id][0],
-                      },
-                    }}
-                    onReady={(e) => {
-                      e.target.mute();
-                    }}
-                  />
-                ) : (
-                  "No Videos"
-                )}
-              </div> */}
               {clickedMovie && (
                 <>
                   <BigCover
