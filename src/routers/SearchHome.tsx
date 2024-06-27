@@ -76,6 +76,7 @@ const Container = styled.div`
   color: #fff;
   z-index: 2;
   padding-top: 120px;
+  overflow-x: hidden;
 `;
 const Movie = styled.div`
   width: 100%;
